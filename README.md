@@ -10,6 +10,7 @@ All source code is present in the `src` directory.
 ## Building
 All build related files are stored in the `target` directory. This will be created by `make` at build time.
 Be sure to have the nightly version of rust installed and run `rustup override set nightly` in the root directory before building the project.
+Before you build, run `export RUST_TARGET_PATH=$(pwd)` to set the path to detect the specified build target.
 
 To build the project, run `make build`.
 

@@ -4,6 +4,8 @@
 
 extern crate bootloader;
 
+mod vga_buffer;
+
 use core::intrinsics;
 use core::panic::PanicInfo;
 
@@ -15,28 +17,8 @@ fn panic(_info: &PanicInfo) -> !{
 
 #[no_mangle]
 pub fn _start() -> ! {
-    let slice = unsafe { core::slice::from_raw_parts_mut(0xb8000 as *mut u8, 4000)};
-    slice[0] = b'h';
-    slice[1] = 0x02;
-    slice[2] = b'e';
-    slice[3] = 0x02;
-    slice[4] = b'l';
-    slice[5] = 0x02;
-    slice[6] = b'l';
-    slice[7] = 0x12;
-    slice[8] = b'o';
-    slice[9] = 0x02;
-    slice[10] = b' ';
-    slice[11] = 0x02;
-    slice[12] = b'w';
-    slice[13] = 0xF2;
-    slice[14] = b'o';
-    slice[15] = 0x02;
-    slice[16] = b'r';
-    slice[17] = 0xC4;
-    slice[18] = b'l';
-    slice[19] = 0x02;
-    slice[20] = b'd';
-    slice[21] = 0x02;
+    use core::fmt::Write; // import the trait to use the macro
+    // with spinlock mutex, the lock() method directly returns the reference instead of Result<T, E> since this is a spinlock and it blocks until the lock is available.
+    write!(vga_buffer::WRITER.lock(),"Hello, {}, {}", 42, 1.337).unwrap();
     loop{}
 }
