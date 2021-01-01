@@ -11,13 +11,24 @@ use core::panic::PanicInfo;
 extern crate bootloader;
 
 mod vga_buffer;
+mod serial;
 
+#[cfg(not(test))] //used when not a test
 #[panic_handler]
 #[no_mangle]
 fn panic(_info: &PanicInfo) -> !{
     println!("{}",_info);
     loop{}
-    //intrinsics::abort()
+}
+
+#[cfg(test)] //used when in test mode
+#[panic_handler]
+#[no_mangle]
+fn panic(_info: &PanicInfo) -> !{
+    serial_println!("FAILED");
+    serial_println!("Error: {}",_info);
+    exit_qemu(QemuExitCode::Failed);
+    loop{}
 }
 
 #[no_mangle]
@@ -56,7 +67,7 @@ pub fn exit_qemu(exit_code: QemuExitCode){
 #[cfg(test)]
 //only include in a test config
 pub fn test_runner(tests: &[&dyn Fn()]){
-    println!("Running {} tests", tests.len());
+    serial_println!("Running {} tests", tests.len());
     for test in tests {
         test();
     }
@@ -65,7 +76,8 @@ pub fn test_runner(tests: &[&dyn Fn()]){
 
 #[test_case]
 fn trivial_assertion(){
-    print!("trivial assertion... ");
-    assert_eq!(1,1);
-    println!("ok");
+    serial_println!("trivial assertion... ");
+    assert_eq!(1,0);
+    serial_println!("ok");
 }
+
