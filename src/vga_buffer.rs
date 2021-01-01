@@ -88,7 +88,7 @@ impl Writer{
 
     fn new_line(&mut self){
         for row in 1..BUFFER_HEIGHT {
-            for col in 1..BUFFER_WIDTH {
+            for col in 0..BUFFER_WIDTH {
                 let character = self.buffer.chars[row][col].read(); // use read because of the Volatile buffer
                 self.buffer.chars[row-1][col].write(character); // move the current line up by 1
             }
@@ -143,4 +143,21 @@ lazy_static! {
         color_code: ColorCode::new(Color::Yellow, Color::Black),
         buffer: unsafe{&mut *(0xb8000 as *mut Buffer)},
     });
+}
+
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => ($crate::vga_buffer::_print(format_args!($($arg)*)))
+}
+
+#[macro_export]
+macro_rules! println {
+    () => ($crate::print!("\n"));
+    ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
+}
+
+#[doc(hidden)]
+pub fn _print(args : fmt::Arguments){
+    use core::fmt::Write;
+    WRITER.lock().write_fmt(args).unwrap(); // write_fmt method is from the Write trait
 }
