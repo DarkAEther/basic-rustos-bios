@@ -3,16 +3,16 @@
 default: build
 
 build: src/
-	xargo bootimage --target=x86_64-unknown-rustos-none
+	cargo bootimage
 	mkdir -p build
 	cp target/x86_64-unknown-rustos-none/debug/bootimage-rustos.bin build/bootimage-rustos.bin
 
 run: build
-	qemu-system-x86_64 -drive format=raw,file=build/bootimage-rustos.bin
+	cargo run
 
 part-clean:
 	rm -r build
 
 full-clean:
 	rm -r build
-	xargo clean
+	cargo clean
